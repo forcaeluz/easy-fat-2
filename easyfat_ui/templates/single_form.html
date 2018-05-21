@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block main_content %}
+    <div class="col-sm-12 col-xl-4">
+        <div class="card">
+            <div class="card-header">
+                {{ form.title }}
+            </div>
+            <div class="card-body">
+                <form action="{{ form_action }}" method="post">{% csrf_token %}
+                    {% include 'form.html' with form=form %}
+                    <input class="btn btn-primary" type="submit" value="{% trans "Submit" %}"/>
+                </form>
+                {% for warning in warnings %}
+                    <div class="alert alert-warning">
+                        {{ warning }}
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+{% endblock %}

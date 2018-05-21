@@ -24,5 +24,6 @@ urlpatterns = [
     url(r'^login$', login, {'template_name': 'login.html'}, name='login'),
     url(r'^logout$', logout, name='logout'),
     url(r'^', include('farm.urls')),
+    url(r'^buildings/', include('buildings.urls')),
     url(r'^accounts', include('easyfat_users.urls')),
 ]

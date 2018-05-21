@@ -45,15 +45,21 @@ class OwnedFarmModelTest(TestCase):
         self.assertEqual(1, self.farm.owners.count())
 
 
-class NewFarmWizardTest(TestCase):
+class NewFarmViewTest(TestCase):
 
     def setUp(self):
-        User.objects.create_user('temporary', 'temporary@gmail.com', 'temporary')
+        self.user = User.objects.create_user('temporary', 'temporary@gmail.com', 'temporary')
         self.client.login(username='temporary', password='temporary')
         self.response = self.client.get('/new_farm')
 
     def test_bread_crumbs(self):
-        self.assertEquals(['Farm Wizards', 'New Farm'], self.response.context['bread_crumbs'])
+        self.assertEquals(['Forms', 'New Farm'], self.response.context['bread_crumbs'])
 
     def test_title(self):
-        self.assertEquals('New farm', self.response.context['wizard_title'])
+        self.assertEquals('New Farm', self.response.context['form'].title)
+
+    def test_save(self):
+        data = {'name': 'Ventania', 'location': 'Carambei'}
+        self.response = self.client.post('/new_farm', data=data)
+        self.assertEqual(302, self.response.status_code)
+        self.assertEqual(1, self.user.userfarmrelations_set.count())

@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load l10n %}
+{% load static %}
+{% load kpi %}
+
+{% block page_header %}{% trans 'Buildings Overview' %}{% endblock %}
+
+{% block main_content %}
+
+    {% for building in object_list %}
+        <div class="row mb-4">
+            <div class="col-sm-12 col-xl-12">
+                <div class="card">
+                    <div class="card-header">
+                        {{ building.name }}
+                    </div>
+
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-sm-4">
+                                <div class="card">
+                                    <div class="card-header">
+                                        {% trans 'Ungrouped rooms' %}
+                                    </div>
+
+                                    <table class="table table-hover">
+                                        <thead class="thead-light">
+                                        <tr>
+                                            <th>Room</th>
+                                            <th>Capacity</th>
+                                            <th>Occupancy</th>
+                                            <th>Is separation</th>
+                                        </tr>
+
+                                        </thead>
+                                        {% for room in building.room_set.all %}
+                                            <tr>
+                                                <td>{{ room.name }}</td>
+                                                <td>{{ room.capacity }}</td>
+                                                <td>{{ room.occupancy }}</td>
+                                                <td>{{ room.is_separation }}</td>
+                                            </tr>
+                                        {% endfor %}
+                                    </table>
+
+
+                                </div>
+                            </div>
+                            <div class="col-sm-4">
+                                <div class="card">
+                                    <div class="card-header">
+                                        {% trans 'Groups' %}
+                                    </div>
+                                    <table class="table table-hover">
+                                        <thead class="thead-light">
+                                        <tr>
+                                            <th>Room</th>
+                                            <th>Capacity</th>
+                                            <th>Occupancy</th>
+                                            <th></th>
+                                        </tr>
+
+                                        </thead>
+                                        {% for room in building.roomgroup_set.all %}
+                                            <tr>
+                                                <td>{{ room.name }}</td>
+                                                <td>{{ room.animal_capacity }}</td>
+                                                <td>{{ room.occupancy }}</td>
+                                                <td>
+                                                    <div class="btn-group">
+                                                        <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                            {% trans 'Add' %}
+                                                        </button>
+                                                        <div class="dropdown-menu">
+                                                            <a class="dropdown-item" href="{% url 'buildings:new_room' %}?group={{ room.id }}">{% trans 'Room' %}</a>
+                                                            <a class="dropdown-item" href="{% url 'buildings:new_room_group' %}?group={{ room.id }}">{% trans 'Room group' %}</a>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                {% trans 'Add' %}
+                            </button>
+                            <div class="dropdown-menu">
+                                <a class="dropdown-item" href="{% url 'buildings:new_room' %}?group={{ building.id }}">{% trans 'Room' %}</a>
+                                <a class="dropdown-item" href="{% url 'buildings:new_room_group' %}?group={{ building.id }}">{% trans 'Room group' %}</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+
+    <div class="row">
+        <div class="col">
+            <a class="btn btn-primary" href="{% url 'buildings:new_building' %}">{% trans 'Add building' %}</a>
+        </div>
+    </div>
+{% endblock %}

@@ -1,5 +1,7 @@
 from formtools.wizard.views import SessionWizardView
+
 from django.utils.translation import ugettext as _
+from django.views.generic import FormView
 
 
 class EasyFatWizardView(SessionWizardView):
@@ -20,3 +22,7 @@ class EasyFatWizardView(SessionWizardView):
         title = self.title_dict.get(current_step, current_step)
         context.update({'step_title': title})
         return context
+
+
+class EasyFatFormView(FormView):
+    template_name = 'single_form.html'
