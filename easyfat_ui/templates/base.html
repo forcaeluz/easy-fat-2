@@ -12,7 +12,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="description" content="">
     <meta name="author" content="">
-    <title>Easy-Fat</title>
+    <title>Easy-Fat: {{ farm.name }}</title>
     <!-- Bootstrap core CSS-->
     <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" />
     <link rel="stylesheet" type="text/css" href="{% static 'css/sb-admin.css' %}" />
@@ -80,6 +80,32 @@
             </li>
         </ul>
         <ul class="navbar-nav ml-auto">
+            {% if request.user.userfarmrelations_set.count == 0 %}
+            <li class="nav-item">
+                <a class="nav-link mr-lg-2" href="{% url 'farm:index' %}">
+                    <span class="fas fa-fw fa-building"></span>{{ farm.name }}
+                </a>
+            </li>
+            {% elif request.user.userfarmrelations_set.count >= 1%}
+            <li class="nav-item dropdown">
+                <a id="farm-dropdown" class="nav-link dropdown-toggle mr-lg-2" href="#" data-toggle="dropdown">
+                    <span class="fas fa-fw fa-building"></span>{{ farm.name }}
+                </a>
+                <div class="dropdown-menu dropdown-menu-right">
+                    <h6 class="dropdown-header">{% trans 'Select farm:' %}</h6>
+                    <div class="dropdown-divider"></div>
+                    {% for relation in request.user.userfarmrelations_set.all %}
+                        <a class="dropdown-item" href="{% url 'farm:dashboard' farm_id=relation.farm.id %}">
+                        <span class="fas fa-fw fa-building"></span>{{ relation.farm.name }}
+                    </a>
+                    {% endfor %}
+                </div>
+            </li>
+
+
+            {% endif %}
+
+
             <li class="nav-item dropdown">
                 <a id="user-dropdown" class="nav-link dropdown-toggle mr-lg-2" href="#" data-toggle="dropdown">
                     <span class="fas fa-fw fa-user"></span>
@@ -102,6 +128,7 @@
                     </a>
                 </div>
             </li>
+
         </ul>
     </div>
 </nav>

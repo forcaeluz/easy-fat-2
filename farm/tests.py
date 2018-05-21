@@ -1,18 +1,23 @@
 from django.test import TestCase
 from django.contrib.auth.models import User
-
+from django.shortcuts import reverse
 from .models import Farm
+from .views import FarmAccessMixin
 
 
 class IndexViewInstantiationTest(TestCase):
 
     def setUp(self):
-        User.objects.create_user('temporary', 'temporary@gmail.com', 'temporary')
+        user = User.objects.create_user('temporary', 'temporary@gmail.com', 'temporary')
+        farm = Farm.objects.create(name='EasyFarm', location='EasyCity')
+        farm.userfarmrelations_set.create(user=user)
         self.client.login(username='temporary', password='temporary')
 
     def test_instantiation(self):
         response = self.client.get('/')
+        self.assertEqual(200, response.status_code)
         self.assertEqual('farm/index.html', response.template_name[0])
+        self.assertEqual(['EasyFarm', 'Dashboard'], response.context['bread_crumbs'])
 
 
 class EmptyFarmModelTest(TestCase):
@@ -63,3 +68,45 @@ class NewFarmViewTest(TestCase):
         self.response = self.client.post('/new_farm', data=data)
         self.assertEqual(302, self.response.status_code)
         self.assertEqual(1, self.user.userfarmrelations_set.count())
+
+
+class FarmAccessMixinTest(TestCase):
+
+    def setUp(self):
+        user = User.objects.create_user('temporary', 'temporary@gmail.com', 'temporary')
+        user2 = User.objects.create_user('user2', 'another@somemail.com', 'password')
+        self.farm = Farm.objects.create(name='EasyFarm', location='EasyCity')
+        self.farm.userfarmrelations_set.create(user=user)
+
+    def test_without_login(self):
+        response = self.client.get('/')
+        self.assertEqual(302, response.status_code)
+        self.assertEqual(reverse('login') + '?next=/', response.url)
+
+    def test_logged_in(self):
+        self.client.login(username='temporary', password='temporary')
+        response = self.client.get('/')
+        self.assertEqual(200, response.status_code)
+
+    def test_user_without_farm(self):
+        self.client.login(username='user2', password='password')
+        response = self.client.get('/')
+        self.assertEqual(302, response.status_code)
+        self.assertEqual(reverse('accounts:index'), response.url)
+
+    def test_user_without_access(self):
+        self.client.login(username='user2', password='password')
+        response = self.client.get(reverse('farm:dashboard', kwargs={'farm_id': self.farm.id}))
+        self.assertEqual(403, response.status_code)
+
+    def test_invalid_farm(self):
+        self.client.login(username='user2', password='password')
+        response = self.client.get(reverse('farm:dashboard', kwargs={'farm_id': 2}))
+        self.assertEqual(403, response.status_code)
+
+    def test_farm_change(self):
+        self.client.login(username='temporary', password='temporary')
+        response = self.client.get(reverse('farm:dashboard', kwargs={'farm_id': self.farm.id}))
+        self.assertEqual(200, response.status_code)
+        response = self.client.get('/')
+        self.assertEqual(200, response.status_code)
