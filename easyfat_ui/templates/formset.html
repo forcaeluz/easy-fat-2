@@ -1,0 +1,51 @@
+{% load i18n %}
+{% csrf_token %}
+{{ form.management_form }}
+{% for error in form.errors %}
+    {% for value in error.values %}
+        <div class="alert alert-danger alert-dismissible">
+            <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+            {{ value.as_text }}
+        </div>
+    {% endfor %}
+{% endfor %}
+
+{% for error in form.non_form_errors %}
+    <div class="alert alert-danger alert-dismissible">
+        <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
+        {{ error }}
+    </div>
+{% endfor %}
+
+<table class="table table-striped">
+    <thead>
+    <tr class="table-header">
+        {% for field in form.forms.0 %}
+            <th>{{ field.label_tag }}</th>
+        {% endfor %}
+    </tr>
+    </thead>
+    {% for row in form.forms %}
+        <tr>
+            {% for field in row %}
+                {% if field.errors or row.errors %}
+                    <td>
+                        <div class="has-error">
+                            <label class="control-label sr-only">{{ field.label_tag }}</label>
+                            {{ field }}
+                        </div>
+                    </td>
+                {% elif field.is_hidden %}
+                    {{ field }}
+                {% else %}
+                    <td>
+                        <div class="">
+                            <label class="control-label sr-only">{{ field.label_tag }}</label>
+                            {{ field }}
+                        </div>
+                    </td>
+                {% endif %}
+            {% endfor %}
+        </tr>
+    {% endfor %}
+</table>

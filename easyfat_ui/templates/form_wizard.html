@@ -15,13 +15,15 @@
                 {% endfor %}
                 <form action="{{ form_action }}" method="post">{% csrf_token %}
                     {{ wizard.management_form }}
-
+                    {% if form.forms %}
+                    {% include 'formset.html' with form=wizard.form %}
+                    {% else %}
                     {% include 'form.html' with form=wizard.form %}
-
-                    {% if wizard.steps.prev %}
-                        <button name="wizard_goto_step" type="submit" value="{{ wizard.steps.prev }}">{% trans "prev step" %}</button>
                     {% endif %}
-                    <input type="submit" value="{% trans "Submit" %}"/>
+                    {% if wizard.steps.prev %}
+                        <button class="btn btn-danger" name="wizard_goto_step" type="submit" value="{{ wizard.steps.prev }}">{% trans "prev step" %}</button>
+                    {% endif %}
+                    <input class="btn btn-primary" type="submit" value="{% trans "Submit" %}"/>
                 </form>
                 {% for warning in warnings %}
                     <div class="alert alert-warning">
