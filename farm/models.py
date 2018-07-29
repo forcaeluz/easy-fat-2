@@ -41,3 +41,13 @@ class FarmBuildingRelations(models.Model):
 class FarmFlockRelations(models.Model):
     farm = models.ForeignKey(Farm, on_delete=models.CASCADE)
     flock = models.ForeignKey(Flock, on_delete=models.CASCADE)
+
+
+class FlockRoomEntryRelations(models.Model):
+    flock = models.ForeignKey(Flock, on_delete=models.CASCADE)
+    room_entry = models.OneToOneField(AnimalRoomEntry, on_delete=models.CASCADE)
+
+
+class FlockRoomExitRelations(models.Model):
+    flock = models.ForeignKey(Flock, on_delete=models.CASCADE)
+    room_exit = models.OneToOneField(AnimalRoomExit, on_delete=models.CASCADE)

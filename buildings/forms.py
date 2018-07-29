@@ -4,7 +4,7 @@ from django.forms import ModelForm
 
 from easyfat_ui.forms import EasyFatForm
 
-from .models import Building, RoomGroup, Room
+from .models import Building, RoomGroup, Room, AnimalRoomEntry
 
 
 class BuildingForm(ModelForm, EasyFatForm):
@@ -28,4 +28,12 @@ class RoomForm(ModelForm, EasyFatForm):
 
     class Meta:
         model = Room
+        exclude = []
+
+
+class RoomEntryForm(ModelForm, EasyFatForm):
+    title = _('New Room Entry')
+
+    class Meta:
+        model = AnimalRoomEntry
         exclude = []

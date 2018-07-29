@@ -21,6 +21,7 @@ class EasyFatWizardView(SessionWizardView):
         current_step = self.steps.current
         title = self.title_dict.get(current_step, current_step)
         context.update({'step_title': title})
+
         return context
 
 

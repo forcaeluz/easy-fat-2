@@ -19,6 +19,11 @@ class FarmAccessMixin(AccessMixin):
             result = farm.userfarmrelations_set.filter(user=user)
             return result.count() > 0
 
+    def get_context_data(self, *args, **kwargs):
+        data = super().get_context_data(*args, **kwargs)
+        data.update({'farm': Farm.objects.get(id=self.request.session['farm'])})
+        return data
+
     def dispatch(self, request, *args, **kwargs):
         if not request.user.is_authenticated:
             return redirect_to_login(self.request.get_full_path(), self.get_login_url(), self.get_redirect_field_name())
