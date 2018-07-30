@@ -1,5 +1,6 @@
 from django.db import models
-from django.db.models import Sum
+from django.db.models import Sum, F, Q, Count
+from django.db.models.functions import Coalesce
 from django.utils.dateparse import parse_date
 
 from math import ceil
@@ -7,32 +8,19 @@ import datetime
 
 
 class CurrentFlocksManager(models.Manager):
-    def present_at_farm(self):
-        result_list = []
-        from django.db import connection
-        with connection.cursor() as cursor:
-            cursor.execute("SELECT f.id,\n"
-                           "  f.entry_date,\n"
-                           "  f.entry_weight,\n"
-                           "  f.number_of_animals,\n"
-                           "  f.number_of_animals - coalesce(e.exits,0) - coalesce(d.deaths,0) AS \"animal_count\"\n"
-                           "FROM flocks_flock AS f\n"
-                           "  LEFT JOIN\n"
-                           "  (SELECT\n"
-                           "     flock_id,\n"
-                           "     SUM(number_of_animals) AS \"exits\"\n"
-                           "   FROM flocks_animalflockexit GROUP BY flock_id)\n"
-                           "    AS e ON e.flock_id == f.id\n"
-                           "  LEFT JOIN\n"
-                           "  (SELECT\n"
-                           "     flock_id,\n"
-                           "     count(DISTINCT id) AS \"deaths\"\n"
-                           "   FROM flocks_animaldeath GROUP BY flock_id) AS d ON d.flock_id == f.id\n"
-                           "WHERE animal_count > 0\n")
-            for row in cursor.fetchall():
-                p = self.model(id=row[0], entry_date=row[1], entry_weight=row[2], number_of_animals=row[3])
-                result_list.append(p)
-            return result_list
+    def present(self):
+        return super().all() \
+            .annotate(dead_animals=Count('animaldeath')) \
+            .annotate(exited=Coalesce(Sum('animalflockexit__number_of_animals'), 0)) \
+            .annotate(current_count=F('number_of_animals') - F('exited') - F('dead_animals')) \
+            .filter(current_count__gt=0)
+
+    def old_flocks(self):
+        return super().all() \
+            .annotate(dead_animals=Count('animaldeath')) \
+            .annotate(exited=Coalesce(Sum('animalflockexit__number_of_animals'), 0)) \
+            .annotate(current_count=F('number_of_animals') - F('exited') - F('dead_animals')) \
+            .filter(current_count__lte=0)
 
 
 class Flock(models.Model):

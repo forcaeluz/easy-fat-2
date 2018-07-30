@@ -159,13 +159,14 @@ class MultipleFlockTest(TestCase):
         self.flock2.save()
 
     def test_get_on_farm(self):
-        flocks = Flock.objects.present_at_farm()
+        flocks = Flock.objects.present()
         self.assertEqual(1, len(flocks))
         self.assertEqual(self.flock2.id, flocks[0].id)
 
     def test_expected_exit_date(self):
         expected_exit_date = datetime.date(2017, 5, 19)
         self.assertEqual(expected_exit_date, self.flock2.expected_exit_date)
+
 
 class SeparationTests(TestCase):
 
